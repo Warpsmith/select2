@@ -112,10 +112,10 @@ $("select").select2({
     <p>
       You can find more information on how to integrate Select2 with your
       existing AMD-based project by
-      <a href="announcements-4.0.html#amd-builds">viewing the 4.0 release notes</a>.
+      <a href="announcements-4.0.html#builds">viewing the 4.0 release notes</a>.
       Select2 automatically loads some modules when the adapters are being
       automatically constructed, so those who are using Select2 with a custom
-      AMD build using their own system will need to specify the paths that are
+      AMD build using their own system may need to specify the paths that are
       generated to the Select2 modules.
     </p>
 
@@ -147,17 +147,6 @@ $("select").select2({
         </dl>
       </div>
     </div>
-
-    <p>
-      If you are using Select2 in your own code base with your own AMD build
-      system, it is recommended to use the full source of Select2 instead of the
-      custom AMD build (<code>select2.amd.js</code>). This will allow you to
-      apply your own build steps, such as minification and concatenation,
-      independent of the Select2 defaults. You will need to set the path to the
-      source directories in the <code>amdBase</code> and
-      <code>amdLanguage</code> base options, which can be set globally through
-      <a href="#defaults">the default options</a>.
-    </p>
 
     <h2>
       Display
@@ -1588,6 +1577,38 @@ $.fn.select2.defaults.set("theme", "classic");
       </div>
     </div>
   </section>
+
+  <h2 id="input-fallback">
+    Compatibility with <code>&lt;input type="text" /&gt;</code>
+  </h2>
+
+  <p class="alert alert-warning">
+    <a href="announcements-4.0.html#hidden-input" class="alert-link">Deprecated in Select2 4.0.</a>
+    It is now encouraged to use the <code>&lt;select&gt;</code> tag instead.
+  </p>
+
+  <p>
+    In past versions of Select2, a <code>&lt;select&gt;</code> element could
+    only be used with a limited subset of options. An
+    <code>&lt;input type="hidden" /&gt;</code> was required instead, which did
+    not allow for a graceful fallback for users who did not have JavaScript
+    enabled. Select2 now supports the <code>&lt;select&gt;</code> element for
+    all options, so it is no longer required to use <code>&lt;input /&gt;</code>
+    elements with Select2.
+  </p>
+
+  <dl class="dl-horizontal">
+    <dt>Adapter</dt>
+    <dd>
+      <code title="select2/data/base">DataAdapter</code>
+    </dd>
+
+    <dt>Decorator</dt>
+    <dd>
+      <code title="select2/compat/inputData">InputData</code>
+    </dd>
+  </dl>
+</section>
 </div>
 
 <script type="text/javascript">

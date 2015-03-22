@@ -11,6 +11,15 @@ define([
     }
 
     this.options = Defaults.apply(this.options);
+
+    if ($element && $element.is('input')) {
+      var InputCompat = require(this.get('amdBase') + 'compat/inputData');
+
+      this.options.dataAdapter = Utils.Decorate(
+        this.options.dataAdapter,
+        InputCompat
+      );
+    }
   }
 
   Options.prototype.fromElement = function ($e) {
@@ -45,8 +54,8 @@ define([
     $e.prop('disabled', this.options.disabled);
     $e.prop('multiple', this.options.multiple);
 
-    if ($e.data('select2-tags')) {
-      if (window.console && console.warn) {
+    if ($e.data('select2Tags')) {
+      if (this.options.debug && window.console && console.warn) {
         console.warn(
           'Select2: The `data-select2-tags` attribute has been changed to ' +
           'use the `data-data` and `data-tags="true"` attributes and will be ' +
@@ -54,12 +63,12 @@ define([
         );
       }
 
-      $e.data('data', $e.data('select2-tags'));
+      $e.data('data', $e.data('select2Tags'));
       $e.data('tags', true);
     }
 
-    if ($e.data('ajax-url')) {
-      if (window.console && console.warn) {
+    if ($e.data('ajaxUrl')) {
+      if (this.options.debug && window.console && console.warn) {
         console.warn(
           'Select2: The `data-ajax-url` attribute has been changed to ' +
           '`data-ajax--url` and support for the old attribute will be removed' +
@@ -67,12 +76,21 @@ define([
         );
       }
 
-      $e.data('ajax--url', $e.data('ajax-url'));
+      $e.attr('ajax--url', $e.data('ajaxUrl'));
+      $e.data('ajax--url', $e.data('ajaxUrl'));
     }
+
+    var dataset = {};
 
     // Prefer the element's `dataset` attribute if it exists
     // jQuery 1.x does not correctly handle data attributes with multiple dashes
-    var data = $.extend(true, {}, $e[0].dataset || $e.data());
+    if ($.fn.jquery && $.fn.jquery.substr(0, 2) == '1.' && $e[0].dataset) {
+      dataset = $.extend(true, {}, $e[0].dataset, $e.data());
+    } else {
+      dataset = $e.data();
+    }
+
+    var data = $.extend(true, {}, dataset);
 
     data = Utils._convertData(data);
 

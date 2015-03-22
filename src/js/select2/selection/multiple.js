@@ -76,7 +76,7 @@ define([
       return;
     }
 
-    var $selections = [];
+    var $selections = $();
 
     for (var d = 0; d < data.length; d++) {
       var selection = data[d];
@@ -85,11 +85,11 @@ define([
       var $selection = this.selectionContainer();
 
       $selection.append(formatted);
-      $selection.prop('title', selection.title);
+      $selection.prop('title', selection.title || selection.text);
 
       $selection.data('data', selection);
 
-      $selections.push($selection);
+      $selections = $selections.add($selection);
     }
 
     this.$selection.find('.select2-selection__rendered').append($selections);

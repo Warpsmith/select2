@@ -9,7 +9,7 @@ define([
     decorated.call(this, container, $container);
 
     if (self.placeholder == null) {
-      if (window.console && console.error) {
+      if (self.options.get('debug') && window.console && console.error) {
         console.error(
           'Select2: The `allowClear` option should be used in combination ' +
           'with the `placeholder` option.'
@@ -64,7 +64,7 @@ define([
     );
     $remove.data('data', data);
 
-    this.$selection.find('.select2-selection__rendered').append($remove);
+    this.$selection.find('.select2-selection__rendered').prepend($remove);
   };
 
   return AllowClear;

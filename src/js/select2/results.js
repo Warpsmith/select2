@@ -106,7 +106,11 @@ define([
 
         var item = $.data(this, 'data');
 
-        if ($.inArray(item.id, selectedIds) > -1) {
+        // id needs to be converted to a string when comparing
+        var id = '' + item.id;
+
+        if ((item.element != null && item.element.selected) ||
+            (item.element == null && $.inArray(id, selectedIds) > -1)) {
           $option.attr('aria-selected', 'true');
         } else {
           $option.attr('aria-selected', 'false');
@@ -281,6 +285,16 @@ define([
       self.$results.removeAttr('aria-activedescendant');
     });
 
+    container.on('results:toggle', function () {
+      var $highlighted = self.getHighlightedResults();
+
+      if ($highlighted.length === 0) {
+        return;
+      }
+
+      $highlighted.trigger('mouseup');
+    });
+
     container.on('results:select', function () {
       var $highlighted = self.getHighlightedResults();
 
@@ -291,13 +305,7 @@ define([
       var data = $highlighted.data('data');
 
       if ($highlighted.attr('aria-selected') == 'true') {
-        if (self.options.get('multiple')) {
-          self.trigger('unselect', {
-            data: data
-          });
-        } else {
-          self.trigger('close');
-        }
+        self.trigger('close');
       } else {
         self.trigger('select', {
           data: data

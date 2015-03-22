@@ -28,7 +28,7 @@ define([
     // Set up containers and adapters
 
     var DataAdapter = this.options.get('dataAdapter');
-    this.data = new DataAdapter($element, this.options);
+    this.dataAdapter = new DataAdapter($element, this.options);
 
     var $container = this.render();
 
@@ -47,7 +47,7 @@ define([
     this.dropdown.position(this.$dropdown, $container);
 
     var ResultsAdapter = this.options.get('resultsAdapter');
-    this.results = new ResultsAdapter($element, this.options, this.data);
+    this.results = new ResultsAdapter($element, this.options, this.dataAdapter);
     this.$results = this.results.render();
 
     this.results.position(this.$results, this.$dropdown);
@@ -70,7 +70,7 @@ define([
     this._registerEvents();
 
     // Set the initial state
-    this.data.current(function (initialData) {
+    this.dataAdapter.current(function (initialData) {
       self.trigger('selection:update', {
         data: initialData
       });
@@ -161,7 +161,7 @@ define([
   };
 
   Select2.prototype._bindAdapters = function () {
-    this.data.bind(this, this.$container);
+    this.dataAdapter.bind(this, this.$container);
     this.selection.bind(this, this.$container);
 
     this.dropdown.bind(this, this.$container);
@@ -172,7 +172,7 @@ define([
     var self = this;
 
     this.$element.on('change.select2', function () {
-      self.data.current(function (data) {
+      self.dataAdapter.current(function (data) {
         self.trigger('selection:update', {
           data: data
         });
@@ -206,7 +206,7 @@ define([
   Select2.prototype._registerDataEvents = function () {
     var self = this;
 
-    this.data.on('*', function (name, params) {
+    this.dataAdapter.on('*', function (name, params) {
       self.trigger(name, params);
     });
   };
@@ -272,7 +272,11 @@ define([
     });
 
     this.on('query', function (params) {
-      this.data.query(params, function (data) {
+      if (!self.isOpen()) {
+        self.trigger('open');
+      }
+
+      this.dataAdapter.query(params, function (data) {
         self.trigger('results:all', {
           data: data,
           query: params
@@ -281,7 +285,7 @@ define([
     });
 
     this.on('query:append', function (params) {
-      this.data.query(params, function (data) {
+      this.dataAdapter.query(params, function (data) {
         self.trigger('results:append', {
           data: data,
           query: params
@@ -295,6 +299,10 @@ define([
       if (self.isOpen()) {
         if (key === KEYS.ENTER) {
           self.trigger('results:select');
+
+          evt.preventDefault();
+        } else if ((key === KEYS.SPACE && evt.ctrlKey)) {
+          self.trigger('results:toggle');
 
           evt.preventDefault();
         } else if (key === KEYS.UP) {
@@ -403,7 +411,7 @@ define([
   };
 
   Select2.prototype.enable = function (args) {
-    if (window.console && console.warn) {
+    if (this.options.get('debug') && window.console && console.warn) {
       console.warn(
         'Select2: The `select2("enable")` method has been deprecated and will' +
         ' be removed in later Select2 versions. Use $element.prop("disabled")' +
@@ -411,7 +419,7 @@ define([
       );
     }
 
-    if (args.length === 0) {
+    if (args == null || args.length === 0) {
       args = [true];
     }
 
@@ -421,7 +429,8 @@ define([
   };
 
   Select2.prototype.data = function () {
-    if (arguments.length > 0 && window.console && console.warn) {
+    if (this.options.get('debug') &&
+        arguments.length > 0 && window.console && console.warn) {
       console.warn(
         'Select2: Data can no longer be set using `select2("data")`. You ' +
         'should consider setting the value instead using `$element.val()`.'
@@ -430,7 +439,7 @@ define([
 
     var data = [];
 
-    this.dataAdpater.current(function (currentData) {
+    this.dataAdapter.current(function (currentData) {
       data = currentData;
     });
 
@@ -438,14 +447,14 @@ define([
   };
 
   Select2.prototype.val = function (args) {
-    if (window.console && console.warn) {
+    if (this.options.get('debug') && window.console && console.warn) {
       console.warn(
         'Select2: The `select2("val")` method has been deprecated and will be' +
         ' removed in later Select2 versions. Use $element.val() instead.'
       );
     }
 
-    if (args.length === 0) {
+    if (args == null || args.length === 0) {
       return this.$element.val();
     }
 
@@ -483,12 +492,12 @@ define([
     this.$element.show();
     this.$element.removeData('select2');
 
-    this.data.destroy();
+    this.dataAdapter.destroy();
     this.selection.destroy();
     this.dropdown.destroy();
     this.results.destroy();
 
-    this.data = null;
+    this.dataAdapter = null;
     this.selection = null;
     this.dropdown = null;
     this.results = null;
